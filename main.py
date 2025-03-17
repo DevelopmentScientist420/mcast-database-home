@@ -1,12 +1,23 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.params import Depends
 from pydantic import BaseModel
 import motor.motor_asyncio
 
 app = FastAPI()
-# Connect to Mongo Atlas
-client = motor.motor_asyncio.AsyncIOMotorClient(
-    "mongodb+srv://liam:OoNpDaWeRtRhnJyU@mcastcluster.hwo2c.mongodb.net/?retryWrites=true&w=majority&appName=MCASTCluster")
-db = client.multimedia_db
+
+# Database connection as a dependency
+async def get_database():
+    # Create a new client for each request
+    client = motor.motor_asyncio.AsyncIOMotorClient(
+        "mongodb+srv://liam:OoNpDaWeRtRhnJyU@mcastcluster.hwo2c.mongodb.net/?retryWrites=true&w=majority&appName=MCASTCluster",
+        maxPoolSize=1,
+        minPoolSize=0,
+        serverSelectionTimeoutMS=5000
+    )
+    try:
+        yield client.multimedia_db
+    finally:
+        client.close()  # Ensure connection is closed after request
 
 
 class PlayerScore(BaseModel):
@@ -20,7 +31,7 @@ async def root():
 
 
 @app.post("/upload_sprite")
-async def upload_sprite(file: UploadFile = File(...)):
+async def upload_sprite(file: UploadFile = File(...), db = Depends(get_database)):
     try:
         # In a real application, the file should be saved to a storage service
         content = await file.read()
@@ -36,7 +47,7 @@ async def upload_sprite(file: UploadFile = File(...)):
 
 
 @app.post("/upload_audio")
-async def upload_audio(file: UploadFile = File(...)):
+async def upload_audio(file: UploadFile = File(...), db = Depends(get_database)):
     try:
         content = await file.read()
         audio_doc = {"filename": file.filename, "content": content}
@@ -51,7 +62,7 @@ async def upload_audio(file: UploadFile = File(...)):
 
 
 @app.post("/player_score")
-async def add_score(score: PlayerScore):
+async def add_score(score: PlayerScore, db = Depends(get_database)):
     try:
         score_doc = score.model_dump()
         result = await db.scores.insert_one(score_doc)
