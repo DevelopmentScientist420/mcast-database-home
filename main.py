@@ -38,6 +38,13 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.post("/player_score")
 async def add_score(score: PlayerScore):
-    score_doc = score.model_dump()
-    result = await db.scores.insert_one(score_doc)
-    return {"message": "Score recorded", "id": str(result.inserted_id)}
+    try:
+        score_doc = score.model_dump()
+        result = await db.scores.insert_one(score_doc)
+        return {"message": "Score recorded", "id": str(result.inserted_id)}
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error recording score: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to record score: {str(e)}")
