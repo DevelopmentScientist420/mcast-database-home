@@ -1,15 +1,19 @@
+import os
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.params import Depends
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import motor.motor_asyncio
 
 app = FastAPI()
+load_dotenv()
 
 # Database connection as a dependency
 async def get_database():
     # Create a new client for each request
+    mongodb_uri = os.environ.get("MONGODB_URI")
     client = motor.motor_asyncio.AsyncIOMotorClient(
-        "mongodb+srv://liam:OoNpDaWeRtRhnJyU@mcastcluster.hwo2c.mongodb.net/?retryWrites=true&w=majority&appName=MCASTCluster",
+        mongodb_uri,
         maxPoolSize=1,
         minPoolSize=0,
         serverSelectionTimeoutMS=5000
@@ -24,12 +28,57 @@ class PlayerScore(BaseModel):
     player_name: str
     score: int
 
-
+# GET methods
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+@app.get("/player_score/")
+async def get_player_score(player_name: str, db = Depends(get_database)):
+    try:
+        score_doc = await db.scores.find_one({"player_name": player_name})
+        if score_doc:
+            return {"player_name": score_doc["player_name"], "score": score_doc["score"]}
+        else:
+            raise HTTPException(status_code=404, detail="Player not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error retrieving player score: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to retrieve player score: {str(e)}")
 
+@app.get("/sprite")
+async def get_sprite(sprite_id: str, db = Depends(get_database)):
+    try:
+        sprite_doc = await db.sprites.find_one({"filename": sprite_id})
+        if sprite_doc:
+            return {"filename": sprite_doc["filename"]}
+        else:
+            raise HTTPException(status_code=404, detail="Sprite not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error retrieving sprite: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to retrieve sprite: {str(e)}")
+
+@app.get("/audio")
+async def get_audio(audio_id: str, db = Depends(get_database)):
+    try:
+        audio_doc = await db.audio.find_one({"_id": audio_id})
+        if audio_doc:
+            return {"filename": audio_doc["filename"], "content": audio_doc["content"]}
+        else:
+            raise HTTPException(status_code=404, detail="Audio not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error retrieving audio: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to retrieve audio: {str(e)}")
+
+# POST methods
 @app.post("/upload_sprite")
 async def upload_sprite(file: UploadFile = File(...), db = Depends(get_database)):
     try:
