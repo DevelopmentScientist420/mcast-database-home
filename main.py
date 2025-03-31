@@ -68,7 +68,7 @@ async def get_sprite(sprite_id: str, db = Depends(get_database)):
 @app.get("/audio")
 async def get_audio(audio_id: str, db = Depends(get_database)):
     try:
-        audio_doc = await db.audio.find_one({"_id": audio_id})
+        audio_doc = await db.audio.find_one({"_id": ObjectId(audio_id)})
         if audio_doc:
             return {"filename": audio_doc["filename"]}
         else:
@@ -83,6 +83,8 @@ async def get_audio(audio_id: str, db = Depends(get_database)):
 # POST methods
 @app.post("/upload_sprite")
 async def upload_sprite(file: UploadFile = File(...), db = Depends(get_database)):
+    if not file.filename.endswith(('.png', '.jpg', '.jpeg')):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only PNG and JPG are allowed.")
     try:
         # In a real application, the file should be saved to a storage service
         content = await file.read()
@@ -98,6 +100,8 @@ async def upload_sprite(file: UploadFile = File(...), db = Depends(get_database)
 
 @app.post("/upload_audio")
 async def upload_audio(file: UploadFile = File(...), db = Depends(get_database)):
+    if not file.filename.endswith(('.mp3', '.wav', '.ogg')):
+        raise HTTPException(status_code=400, detail="Invalid file type. File must be an audio file!")
     try:
         content = await file.read()
         audio_doc = {"filename": file.filename, "content": content}
