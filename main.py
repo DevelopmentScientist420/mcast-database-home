@@ -30,10 +30,13 @@ async def get_database():
 
 
 class PlayerScore(BaseModel):
-    """This is a class used to define the schema of the player score."""
-    player_name: str
-    score: int
-
+    """
+    This is a class used to define the schema of the player score.
+    The Field class is used to constrain the length of the player name and define minimum and maximum score
+    for input sanitization.
+    """
+    player_name: str = Field(..., min_length=1, max_length=50)
+    score: int = Field(..., ge=0, le=200)
 
 # GET methods
 
@@ -177,7 +180,7 @@ async def upload_audio(file: UploadFile = File(...), db=Depends(get_database)):
         raise HTTPException(500, f"Failed to record score: {str(e)}")
 
 
-@app.post("/upload_player_score")
+@app.post("/player_score")
 async def add_score(score: PlayerScore, db=Depends(get_database)):
     """
     A simple POST endpoint which records the player score in the database.
