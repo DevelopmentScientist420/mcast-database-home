@@ -1,10 +1,9 @@
 import os
-import pymongo
 from bson import ObjectId
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import motor.motor_asyncio
 
