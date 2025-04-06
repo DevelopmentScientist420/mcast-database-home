@@ -2,6 +2,7 @@ import os
 import pymongo
 from bson import ObjectId
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends
 from pydantic import BaseModel, Field, constr
 from dotenv import load_dotenv
@@ -9,6 +10,21 @@ import motor.motor_asyncio
 
 app = FastAPI()
 load_dotenv()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Restrict to your frontend domains in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Security-Policy"],
+)
+
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    return response
 
 async def get_database():
     """This method is used as a dependency for all the routes which require a connection to the MongoDB database.
@@ -37,6 +53,7 @@ class PlayerScore(BaseModel):
     """
     player_name: str = Field(..., min_length=1, max_length=50)
     score: int = Field(..., ge=0, le=200)
+
 
 # GET methods
 
@@ -75,6 +92,7 @@ async def get_player_score(player_id: str, db=Depends(get_database)):
         error_details = traceback.format_exc()
         print(f"Error retrieving player score: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to retrieve player score: {str(e)}")
+
 
 @app.get("/sprite")
 async def get_sprite(sprite_id: str, db=Depends(get_database)):
@@ -129,6 +147,7 @@ async def get_audio(audio_id: str, db=Depends(get_database)):
         print(f"Error retrieving audio: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to retrieve audio: {str(e)}")
 
+
 # POST methods
 
 @app.post("/upload_sprite")
@@ -155,6 +174,7 @@ async def upload_sprite(file: UploadFile = File(...), db=Depends(get_database)):
         error_details = traceback.format_exc()
         print(f"Error recording score: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to upload sprite: {str(e)}")
+
 
 @app.post("/upload_audio")
 async def upload_audio(file: UploadFile = File(...), db=Depends(get_database)):
