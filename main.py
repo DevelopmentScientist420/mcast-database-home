@@ -50,6 +50,7 @@ class PlayerScore(BaseModel):
     This is a class used to define the schema of the player score.
     The Field class is used to constrain the length of the player name and define minimum and maximum score
     for input sanitization.
+    This class prevents NoSQL injection attacks since it only allows the defined fields to be passed.
     """
     player_name: str = Field(..., min_length=1, max_length=50)
     score: int = Field(..., ge=0, le=200)
