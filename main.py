@@ -3,7 +3,7 @@ import pymongo
 from bson import ObjectId
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.params import Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, constr
 from dotenv import load_dotenv
 import motor.motor_asyncio
 
@@ -58,6 +58,9 @@ async def get_player_score(player_id: str, db=Depends(get_database)):
     :return: A dictionary containing the player name and score.
     """
     try:
+        if not ObjectId.is_valid(player_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
         score_doc = await db.scores.find_one({"_id": ObjectId(player_id)})
         if score_doc:
             return {"player_name": score_doc["player_name"], "score": score_doc["score"]}
@@ -81,6 +84,9 @@ async def get_sprite(sprite_id: str, db=Depends(get_database)):
     :return: A dictionary containing the sprite file name.
     """
     try:
+        if not ObjectId.is_valid(sprite_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
         sprite_doc = await db.sprites.find_one({"_id": ObjectId(sprite_id)})
         if sprite_doc:
             return {"filename": sprite_doc["filename"]}
@@ -105,6 +111,9 @@ async def get_audio(audio_id: str, db=Depends(get_database)):
     :return: A dictionary containing the audio file name.
     """
     try:
+        if not ObjectId.is_valid(audio_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
         audio_doc = await db.audio.find_one({"_id": ObjectId(audio_id)})
         if audio_doc:
             return {"filename": audio_doc["filename"]}
