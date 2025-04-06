@@ -50,7 +50,7 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/player_score/")
+@app.get("/player_score")
 async def get_player_score(player_id: str, db=Depends(get_database)):
     """
     A simple GET endpoint which returns the player name and score from the database.
