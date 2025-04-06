@@ -118,6 +118,7 @@ async def get_audio(audio_id: str, db=Depends(get_database)):
         raise HTTPException(500, f"Failed to retrieve audio: {str(e)}")
 
 # POST methods
+
 @app.post("/upload_sprite")
 async def upload_sprite(file: UploadFile = File(...), db=Depends(get_database)):
     """

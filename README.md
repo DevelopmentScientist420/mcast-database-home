@@ -1,5 +1,17 @@
 # Documentation
 
+## Setup
+
+This project is a simple REST API built with Python using the FastAPI framework. Its purpose
+is to manage player scores and media files (sprites and audio) for a game.
+The virtual environment was created using venv and dependencies are managed with pip.
+
+It's recommended to open the project folder in Pycharm so all dependencies are automatically installed through
+requirements.txt, and it chooses the right Python interpreter. 
+
+It's **important** to note that Pydantic is not in requirements.txt because it would cause a version conflict
+with Vercel during the deployment process.
+
 ## API Routes
 
 ### GET /player_score
