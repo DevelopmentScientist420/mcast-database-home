@@ -1,36 +1,21 @@
 import os
 from bson import ObjectId
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from collections import OrderedDict
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from fastapi.params import Depends
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 import motor.motor_asyncio
 
+from security_middleware import SecurityHeadersMiddleware
+
 app = FastAPI()
 load_dotenv()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Restrict to your frontend domains in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["Content-Security-Policy"],
-)
-
-@app.middleware("http")
-async def add_security_headers(request, call_next):
-    """
-    This middleware is used to add security headers to the response so the API prevents XSS attacks.
-
-    :param request: The request object.
-    :param call_next: The next middleware or endpoint to be called.
-    :return: The response object with the security headers added.
-    """
-    response = await call_next(request)
-    response.headers["Content-Security-Policy"] = "default-src 'self'"
-    return response
+# Adds security middleware from security_middleware.py
+app.add_middleware(SecurityHeadersMiddleware)
 
 async def get_database():
     """
