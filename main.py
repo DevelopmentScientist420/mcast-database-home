@@ -21,14 +21,23 @@ app.add_middleware(
 
 @app.middleware("http")
 async def add_security_headers(request, call_next):
+    """
+    This middleware is used to add security headers to the response so the API prevents XSS attacks.
+
+    :param request: The request object.
+    :param call_next: The next middleware or endpoint to be called.
+    :return: The response object with the security headers added.
+    """
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
 
 async def get_database():
-    """This method is used as a dependency for all the routes which require a connection to the MongoDB database.
+    """
+    This method is used as a dependency for all the routes which require a connection to the MongoDB database.
     It creates a new client for each request and closes after the request is completed.
-    The MONGODB_URI environment variable is used so the password isn't exposed in the code."""
+    The MONGODB_URI environment variable is used so the password isn't exposed in the code.
+    """
 
     # Create a new client for each request
     mongodb_uri = os.environ.get("MONGODB_URI")
