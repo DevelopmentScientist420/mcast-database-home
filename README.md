@@ -12,6 +12,21 @@ requirements.txt, and it chooses the right Python interpreter.
 It's **important** to note that Pydantic is not in requirements.txt because it would cause a version conflict
 with Vercel during the deployment process.
 
+### Setting up the project:
+
+To set up the project, follow these steps:
+
+1. Clone the repository onto your local machine with this link ```https://github.com/DevelopmentScientist420/mcast-database-home.git```
+2. Navigate to the project directory
+3. Open the project folder in PyCharm
+4. Wait for the IDE to set up the virtual environment and install the dependencies
+5. Launch by pressing the green Play button
+
+After setting up the project, check if the API is working by going to ``http://127.0.0.1:8000/docs`` on your browser.
+This will open the Swagger UI, where you can see all the available endpoints and test them.
+Preferably use Postman to test the endpoints. Further details about them are explained below.
+
+
 ## API Routes
 
 ### GET /player_score
