@@ -218,6 +218,97 @@ async def add_score(score: PlayerScore, db=Depends(get_database)):
         print(f"Error recording score: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to record score: {str(e)}")
 
+# PUT endpoints
+
+@app.put("/player_score")
+async def update_player_score(player_id: str, score: PlayerScore, db=Depends(get_database)):
+    """
+    A simple PUT endpoint which updates the player score in the database.
+    It throws an error if the player is not found.
+
+    :param player_id: The ID of the player whose score is to be updated.
+    :param score: The new player score to be updated. It must contain the player name and score.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the updated score.
+    """
+    try:
+        if not ObjectId.is_valid(player_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        result = await db.scores.update_one({"_id": ObjectId(player_id)}, {"$set": score.model_dump()})
+        if result.modified_count == 1: # Checks if mongo successfully updated the player score
+            return {"message": "Player score updated", "id": player_id}
+        else:
+            raise HTTPException(status_code=404, detail="Player not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error updating player score: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to update player score: {str(e)}")
+
+@app.put("/sprite")
+async def update_sprite(sprite_id: str, file: UploadFile = File(...), db=Depends(get_database)):
+    """
+    A simple PUT endpoint which updates the sprite in the database.
+    It throws an error if the sprite is not found.
+
+    :param sprite_id: The ID of the sprite to be updated.
+    :param file: The new sprite file to be uploaded. It must be PNG or JPG, else the endpoint will return a 400 error.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the updated sprite.
+    """
+    if not file.filename.endswith(('.png', '.jpg', '.jpeg')):
+        raise HTTPException(status_code=400, detail="Invalid file type. Only PNG and JPG are allowed.")
+    try:
+        if not ObjectId.is_valid(sprite_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        content = await file.read()
+        result = await db.sprites.update_one({"_id": ObjectId(sprite_id)}, {"$set": {"filename": file.filename, "content": content}})
+        if result.modified_count == 1: # Checks if mongo successfully updated the file
+            return {"message": "Sprite updated", "id": sprite_id}
+        else:
+            raise HTTPException(status_code=404, detail="Sprite not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error updating sprite: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to update sprite: {str(e)}")
+
+@app.put("/audio")
+async def update_audio(audio_id: str, file: UploadFile = File(...), db=Depends(get_database)):
+    """
+    A simple PUT endpoint which updates the audio file in the database.
+    It throws an error if the audio file is not found.
+
+    :param audio_id: The ID of the audio file to be updated.
+    :param file: The new audio file to be uploaded. It must be MP3, WAV or OGG, else the endpoint will return a 400 error.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the updated audio file.
+    """
+    if not file.filename.endswith(('.mp3', '.wav', '.ogg')):
+        raise HTTPException(status_code=400, detail="Invalid file type. File must be an audio file!")
+    try:
+        if not ObjectId.is_valid(audio_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        content = await file.read()
+        result = await db.audio.update_one({"_id": ObjectId(audio_id)}, {"$set": {"filename": file.filename, "content": content}})
+        if result.modified_count == 1: # Checks if mongo successfully updated the file
+            return {"message": "Audio updated", "id": audio_id}
+        else:
+            raise HTTPException(status_code=404, detail="Audio not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error updating audio: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to update audio: {str(e)}")
+
+# DELETE endpoints
+
 @app.delete("/audio")
 async def delete_audio(audio_id: str, db=Depends(get_database)):
     """
@@ -295,3 +386,4 @@ async def delete_player_score(player_id: str, db=Depends(get_database)):
         error_details = traceback.format_exc()
         print(f"Error deleting player score: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to delete player score: {str(e)}")
+

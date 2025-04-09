@@ -85,5 +85,22 @@ parameters:
 
 - `file` (required): The audio file to upload.
 
+### PUT /player_score
+The `/player_score` route is used to update a player's score in the database. It accepts a PUT request with the
+following parameters as a **RAW JSON** and the `player_id` as a parameter in the URL:
+
+- `player_name` (optional): The new name of the player.
+- `score` (optional): The new score of the player.
+
+### Example:
+```json
+{
+  "player_name": "John",
+  "score": 3000
+}
+```
+
+
+
 The API also has DELETE endpoints for player score, audio and sprite. The API can search for the data delete 
 via the inputted ID and delete it from the database.
