@@ -100,7 +100,17 @@ following parameters as a **RAW JSON** and the `player_id` as a parameter in the
 }
 ```
 
+### PUT /sprite
+The `/sprite` route is used to update a sprite file for a player. It accepts a PUT request with the following
+parameters in the body and the `sprite_id` as a parameter in the URL:
 
+- `file` (required): The new sprite file to upload.
+
+### PUT /audio
+The `/audio` route is used to update an audio file for a player. It accepts a PUT request with the following
+parameters in the body and the `audio_id` as a parameter in the URL:
+
+- `file` (required): The new audio file to upload.
 
 The API also has DELETE endpoints for player score, audio and sprite. The API can search for the data delete 
 via the inputted ID and delete it from the database.
