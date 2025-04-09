@@ -1,3 +1,4 @@
+import base64
 import os
 from bson import ObjectId
 from collections import OrderedDict
@@ -96,7 +97,7 @@ async def get_sprite(sprite_id: str, db=Depends(get_database)):
 
     :param sprite_id: The ID of the sprite to be retrieved.
     :param db: The database connection is passed as a dependency.
-    :return: A dictionary containing the sprite file name.
+    :return: A dictionary containing the sprite file name and content.
     """
     try:
         if not ObjectId.is_valid(sprite_id):
@@ -104,7 +105,8 @@ async def get_sprite(sprite_id: str, db=Depends(get_database)):
 
         sprite_doc = await db.sprites.find_one({"_id": ObjectId(sprite_id)})
         if sprite_doc:
-            return {"filename": sprite_doc["filename"]}
+            sprite_base64 = base64.b64encode(sprite_doc["content"]).decode("utf-8")
+            return {"filename": sprite_doc["filename"], "content": sprite_base64}
         else:
             raise HTTPException(status_code=404, detail="Sprite not found")
     except Exception as e:
@@ -123,7 +125,7 @@ async def get_audio(audio_id: str, db=Depends(get_database)):
 
     :param audio_id: The ID of the audio file to be retrieved.
     :param db: The database connection is passed as a dependency.
-    :return: A dictionary containing the audio file name.
+    :return: A dictionary containing the audio file name and content.
     """
     try:
         if not ObjectId.is_valid(audio_id):
@@ -131,7 +133,8 @@ async def get_audio(audio_id: str, db=Depends(get_database)):
 
         audio_doc = await db.audio.find_one({"_id": ObjectId(audio_id)})
         if audio_doc:
-            return {"filename": audio_doc["filename"]}
+            audio_base64 = base64.b64encode(audio_doc["content"]).decode("utf-8")
+            return {"filename": audio_doc["filename"], "content": audio_base64}
         else:
             raise HTTPException(status_code=404, detail="Audio not found")
     except Exception as e:

@@ -45,7 +45,7 @@ request with the following parameters:
 
 - `sprite_id` (required): The ID of the sprite to retrieve.
 
-This route returns the sprite's file name.
+This route returns the sprite's file name and file contents in Base64.
 
 ### GET /audio
 
@@ -54,7 +54,7 @@ request with the following parameters:
 
 - `audio_id` (required): The ID of the audio file to retrieve.
 
-This route returns the audio file's name.
+This route returns the audio file's name and content in Base64.
 
 ### POST /upload_player_score
 
