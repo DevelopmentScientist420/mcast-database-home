@@ -85,3 +85,5 @@ parameters:
 
 - `file` (required): The audio file to upload.
 
+The API also has DELETE endpoints for player score, audio and sprite. The API can search for the data delete 
+via the inputted ID and delete it from the database.

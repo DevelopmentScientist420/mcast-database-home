@@ -217,3 +217,81 @@ async def add_score(score: PlayerScore, db=Depends(get_database)):
         error_details = traceback.format_exc()
         print(f"Error recording score: {str(e)}\n{error_details}")
         raise HTTPException(500, f"Failed to record score: {str(e)}")
+
+@app.delete("/audio")
+async def delete_audio(audio_id: str, db=Depends(get_database)):
+    """
+    A simple DELETE endpoint which deletes an audio file from the database using a unique ID.
+    It throws an error if the audio file is not found.
+
+    :param audio_id: The ID of the audio file to be deleted.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the deleted audio file.
+    """
+    try:
+        if not ObjectId.is_valid(audio_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        result = await db.audio.delete_one({"_id": ObjectId(audio_id)})
+        if result.deleted_count == 1:
+            return {"message": "Audio deleted", "id": audio_id}
+        else:
+            raise HTTPException(status_code=404, detail="Audio not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error deleting audio: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to delete audio: {str(e)}")
+
+@app.delete("/sprite")
+async def delete_sprite(sprite_id: str, db=Depends(get_database)):
+    """
+    A simple DELETE endpoint which deletes a sprite from the database using a unique ID.
+    It throws an error if the sprite is not found.
+
+    :param sprite_id: The ID of the sprite to be deleted.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the deleted sprite.
+    """
+    try:
+        if not ObjectId.is_valid(sprite_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        result = await db.sprites.delete_one({"_id": ObjectId(sprite_id)})
+        if result.deleted_count == 1:
+            return {"message": "Sprite deleted", "id": sprite_id}
+        else:
+            raise HTTPException(status_code=404, detail="Sprite not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error deleting sprite: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to delete sprite: {str(e)}")
+
+@app.delete("/player_score")
+async def delete_player_score(player_id: str, db=Depends(get_database)):
+    """
+    A simple DELETE endpoint which deletes a player score from the database using a unique ID.
+    It throws an error if the player score is not found.
+
+    :param player_id: The ID of the player score to be deleted.
+    :param db: The database connection is passed as a dependency.
+    :return: A dictionary containing the message and the ID of the deleted player score.
+    """
+    try:
+        if not ObjectId.is_valid(player_id):
+            raise HTTPException(status_code=400, detail="Invalid Id")
+
+        result = await db.scores.delete_one({"_id": ObjectId(player_id)})
+        if result.deleted_count == 1:
+            return {"message": "Player score deleted", "id": player_id}
+        else:
+            raise HTTPException(status_code=404, detail="Player score not found")
+    except Exception as e:
+        # Log the specific error
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error deleting player score: {str(e)}\n{error_details}")
+        raise HTTPException(500, f"Failed to delete player score: {str(e)}")
